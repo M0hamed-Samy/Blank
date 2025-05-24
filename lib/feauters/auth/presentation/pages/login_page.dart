@@ -13,8 +13,10 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myapp/feauters/auth/presentation/components/my_button.dart';
 import 'package:myapp/feauters/auth/presentation/components/my_text_field.dart';
+import 'package:myapp/feauters/auth/presentation/cubits/auth_cubit.dart';
 
 class LoginPage extends StatefulWidget {
   final void Function()? togglePages;
@@ -28,6 +30,35 @@ class _LoginPageState extends State<LoginPage> {
   //text controller
   final emailController = TextEditingController();
   final pwController = TextEditingController();
+  //login button pressed
+  void login() {
+    //prepare email and pw
+    final String email = emailController.text;
+    final String pw = pwController.text;
+
+    //auth cubit
+    final authCubit = context.read<AuthCubit>();
+
+    //email and pw isnt empty
+    if (email.isNotEmpty && pw.isNotEmpty) {
+      //login !
+      authCubit.login(email, pw);
+    }
+    //errors if empty fields
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter valid email and password")),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    pwController.dispose();
+
+    super.dispose();
+  }
 
   //Build UI
   @override
@@ -79,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                 //login button
                 MyButton(
                   //
-                  onTap: () {},
+                  onTap: login,
                   text: "Login",
                 ),
                 const SizedBox(height: 20),

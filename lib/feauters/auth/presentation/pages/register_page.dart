@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myapp/feauters/auth/presentation/components/my_button.dart';
+import 'package:myapp/feauters/auth/presentation/cubits/auth_cubit.dart';
 
 import '../components/my_text_field.dart';
 
@@ -18,6 +20,49 @@ class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final pwController = TextEditingController();
   final confirmController = TextEditingController();
+
+  //register button
+  void register() {
+    //prepare info
+    final String name = nameController.text;
+    final String email = emailController.text;
+    final String pw = pwController.text;
+    final String confirm = confirmController.text;
+
+    //auth cubit
+    final authCubit = context.read<AuthCubit>();
+
+    //ensure fields isnt empty
+    if (email.isNotEmpty &&
+        pw.isNotEmpty &&
+        confirm.isNotEmpty &&
+        name.isNotEmpty) {
+      //ensure passwords are equal
+      if (pw == confirm) {
+        authCubit.register(name, email, pw);
+      } //if passwords isnt equal
+      else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Password must be matched')),
+        );
+      }
+    }
+    //if empty -> display error
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all empty fields')),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    pwController.dispose();
+    confirmController.dispose();
+    super.dispose();
+  }
 
   //Build UI
   @override
@@ -86,7 +131,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 //login button
                 MyButton(
                   //
-                  onTap: () {},
+                  onTap: register,
                   text: "Register",
                 ),
                 const SizedBox(height: 20),
